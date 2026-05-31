@@ -417,78 +417,32 @@ const firebaseConfig = {
     window.set = set;
     window.onValue = onValue;
 
-	window.saveToStorage = function() {
-        set(ref(window.db, 'menus'), menus);
-        set(ref(window.db, 'settings'), settings);
-    };
+    let cart = {};
+    let menus = [/* data menu anda */];
 
-	window.loadDataFromFirebase = function() {
-          onValue(ref(window.db, 'menus'), (snapshot) => {
-            const data = snapshot.val();
-            menus = data || DEFAULT_MENUS;
-            renderMenu(); // Pastikan fungsi ini pun ada di sini atau global
+window.onload = function() {
+	    loadDataFromFirebase();
+
+            initCart();
+            renderMenu();
+            renderBusinessHours();
+            toggleMethod('COD');
+            togglePaymentMethod('QR');
+            togglePhase('Fasa 1');
+            updateStoreStatus();
+            calculateTotal();
+        };
+
+window.initCart = function() {
+        menus.forEach(menu => {
+            if (cart[menu.id] === undefined) {
+                cart[menu.id] = 0;
+            }
         });
+        console.log("Cart initialized!");
     };
-		tailwind.config = {
-      theme: {
-        extend: {
-          fontFamily: {
-            // Kita cipta kelas baru bernama 'font-handwritten'
-            handwritten: ['"Pacifico"', 'cursive'],
-          }
-        }
-      }
-    }
-        // Senarai Menu Lalai
-        const DEFAULT_MENUS = [];
 
-        // Nama Hari dalam Bahasa Melayu
-        const DAYS_MALAY = {
-            0: "Ahad",
-            1: "Isnin",
-            2: "Selasa",
-            3: "Rabu",
-            4: "Khamis",
-            5: "Jumaat",
-            6: "Sabtu"
-        };
-
-        // Tetapan waktu operasi lalai
-        const DEFAULT_SETTINGS = {
-            openHour: 7,     // 7:00 AM
-            closeHour: 20,   // 8:00 PM
-            offDay: 3        // Rabu
-        };
-
-        // Dapatkan data dari localStorage
-        let menus = [];
-        let settings = DEFAULT_SETTINGS;
-
-        // Memantau Kuantiti yang dipilih
-        let cart = {};
-
-        // Inisialisasi troli berasaskan item aktif
-        function initCart() {
-            menus.forEach(menu => {
-                if (cart[menu.id] === undefined) {
-                    cart[menu.id] = 0;
-                }
-            });
-            // Bersihkan data cart untuk item yang dibuang
-            const menuIds = menus.map(m => m.id);
-            Object.keys(cart).forEach(id => {
-                if (!menuIds.includes(Number(id))) {
-                    delete cart[id];
-                }
-            });
-        }
-
-        let selectedMethod = 'COD';
-        let selectedPaymentMethod = 'QR';
-        let selectedPhase = 'Fasa 1';
-
-        // Fungsi mengemaskini kuantiti pesanan
-        function updateQty(id, change) {
+window.updateQty = function(id, change) {
             const menu = menus.find(m => m.id === id);
             if (menu && menu.sold && change > 0) {
                 showToast(`Maaf, hidangan "${menu.name}" telah SOLD OUT!`);
@@ -533,7 +487,7 @@ const firebaseConfig = {
         }
 
         // Fungsi menjana elemen senarai menu pada skrin
-        function renderMenu() {
+        window.renderMenu = function() {
             const menuList = document.getElementById('menu-list');
             menuList.innerHTML = '';
 
@@ -580,7 +534,7 @@ const firebaseConfig = {
         }
 
         // Fungsi menukar kaedah penghantaran (COD / PICKUP)
-        function toggleMethod(method) {
+        window.toggleMethod = function(method) {
             selectedMethod = method;
             const addressContainer = document.getElementById('address-container');
             
@@ -603,7 +557,7 @@ const firebaseConfig = {
         }
 
         // Fungsi menukar kaedah pembayaran (QR / COD)
-        function togglePaymentMethod(method) {
+        window.togglePaymentMethod = function(method) {
             selectedPaymentMethod = method;
             const btnQr = document.getElementById('label-pay-qr');
             const btnCod = document.getElementById('label-pay-cod');
@@ -618,7 +572,7 @@ const firebaseConfig = {
         }
 
         // Fungsi menukar pilihan Fasa (Fasa 1 / Fasa 3)
-        function togglePhase(phase) {
+        window.togglePhase = function(phase) {
             selectedPhase = phase;
             const btnPhase1 = document.getElementById('label-phase-1');
             const btnPhase2 = document.getElementById('label-phase-2');
@@ -633,7 +587,7 @@ const firebaseConfig = {
         }
 
         // Memeriksa adakah kedai sedang beroperasi berdasarkan tetapan
-        function isStoreOpen() {
+        window.isStoreOpen = function() {
             const now = new Date();
             const currentDay = now.getDay(); // 0 = Ahad, 1 = Isnin ...
             const currentHour = now.getHours();
@@ -645,7 +599,7 @@ const firebaseConfig = {
         }
 
         // Fungsi mengawal pop-up halangan operasi perniagaan
-        function showClosedModal() {
+        window.showClosedModal = function() {
             const modal = document.getElementById('closed-modal');
             const content = document.getElementById('closed-modal-content');
             modal.classList.remove('hidden');
@@ -658,7 +612,7 @@ const firebaseConfig = {
         }
 
         // Fungsi menutup pop-up halangan operasi
-        function closeClosedModal() {
+        window.closeClosedModal = function() {
             const modal = document.getElementById('closed-modal');
             const content = document.getElementById('closed-modal-content');
             modal.classList.add('opacity-0');
@@ -671,7 +625,7 @@ const firebaseConfig = {
         }
 
         // Fungsi mengawal pop-up halangan item sold out
-        function showSoldModal(itemName) {
+        window.showSoldModal = function(itemName) {
             document.getElementById('sold-modal-msg').innerText = `Harap maaf, hidangan "${itemName}" telah SOLD OUT. Sila kurangkan kuantiti item tersebut kepada 0 untuk meneruskan pesanan anda.`;
             const modal = document.getElementById('sold-modal');
             const content = document.getElementById('sold-modal-content');
@@ -685,7 +639,7 @@ const firebaseConfig = {
         }
 
         // Fungsi menutup pop-up item sold out
-        function closeSoldModal() {
+        window.closeSoldModal = function() {
             const modal = document.getElementById('sold-modal');
             const content = document.getElementById('sold-modal-content');
             modal.classList.add('opacity-0');
@@ -698,7 +652,7 @@ const firebaseConfig = {
         }
 
         // Fungsi menghantar pesanan lengkap ke WhatsApp
-        function sendOrder() {
+        window.sendOrder = function() {
             // HALANGAN OPERASI: Jika perniagaan belum bermula / ditutup, halang tempahan
             if (!isStoreOpen()) {
                 showClosedModal();
@@ -775,7 +729,7 @@ const firebaseConfig = {
 
             // Buka API WhatsApp secara langsung
             const encodedMessage = encodeURIComponent(fullMessage);
-            window.open(`https://wa.me/${waNumber}?text=${encodedMessage}`, '_blank');
+            window.open = function(`https://wa.me/${waNumber}?text=${encodedMessage}`, '_blank');
         }
 
         // Format jam 24H kepada paparan 12H mesra pengguna (AM/PM)
@@ -805,7 +759,7 @@ const firebaseConfig = {
         }
 
         // Menyemak Status Operasi Semasa (Live Open/Closed Status)
-        function updateStoreStatus() {
+        window.updateStoreStatus = function() {
             const badge = document.getElementById('status-badge');
             const statusText = document.getElementById('status-text');
             const orderBtn = document.getElementById('order-btn');
@@ -856,7 +810,7 @@ const firebaseConfig = {
         }
 
         // Fungsi memaparkan notifikasi kecil (Toast Notification)
-        function showToast(message) {
+        window.showToast = function(message) {
             const toast = document.getElementById('toast');
             const toastMsg = document.getElementById('toast-msg');
             toastMsg.innerText = message;
@@ -871,7 +825,7 @@ const firebaseConfig = {
         }
 
         // Fungsi berkongsi kad bisnes secara pintar
-        function shareCard() {
+        window.shareCard = function() {
             if (navigator.share) {
                 navigator.share({
                     title: 'Home Kitchen Teluk Intan',
@@ -886,7 +840,7 @@ const firebaseConfig = {
         }
 
         // Fungsi menyalin link kad ke papan keratan (fallback kongsi)
-        function copyToClipboard() {
+        window.copyToClipboard = function() {
             const dummy = document.createElement('input');
             document.body.appendChild(dummy);
             dummy.value = window.location.href;
@@ -897,137 +851,16 @@ const firebaseConfig = {
         }
 
         // --- SIDEBAR INTERACTIVE LOGIC ---
-        function toggleSidebar() {
-            const sidebar = document.getElementById('sidebar');
-            if (sidebar.classList.contains('translate-x-full')) {
-                sidebar.classList.remove('translate-x-full');
-                sidebar.classList.add('translate-x-0');
-                // Semak status log masuk pembekal semasa membuka sidebar
-                checkLoginStatus();
-            } else {
-                sidebar.classList.remove('translate-x-0');
-                sidebar.classList.add('translate-x-full');
-            }
-        }
+        
 
         // Memeriksa status log masuk dalam sesi semasa
-        function checkLoginStatus() {
-            const loggedIn = sessionStorage.getItem('admin_logged_in') === 'true';
-            const authSection = document.getElementById('auth-section');
-            const adminSection = document.getElementById('admin-section');
-            
-            if (loggedIn) {
-                authSection.classList.add('hidden');
-                adminSection.classList.remove('hidden');
-                renderAdminMenuList();
-                
-                // Isi borang dengan tetapan waktu semasa
-                document.getElementById('settings-open-hour').value = settings.openHour;
-                document.getElementById('settings-close-hour').value = settings.closeHour;
-                document.getElementById('settings-off-day').value = settings.offDay;
-            } else {
-                authSection.classList.remove('hidden');
-                adminSection.classList.add('hidden');
-            }
-        }
+        
 
         // Fungsi Log Masuk Peniaga
-        function loginAdmin() {
-            const user = document.getElementById('admin-user').value.trim();
-            const pass = document.getElementById('admin-pass').value.trim();
-
-            if (user === 'admin' && pass === 'admin') {
-                sessionStorage.setItem('admin_logged_in', 'true');
-                document.getElementById('admin-user').value = '';
-                document.getElementById('admin-pass').value = '';
-                checkLoginStatus();
-                showToast("🔐 Log masuk admin berjaya!");
-            } else {
-                showToast("❌ Username atau password salah!");
-            }
-        }
-
-        // Fungsi Log Keluar Peniaga
-        function logoutAdmin() {
-            sessionStorage.removeItem('admin_logged_in');
-            checkLoginStatus();
-            showToast("🔓 Anda telah log keluar.");
-        }
-
-        // --- ADMIN SETTINGS CONFIGURATION ---
-        // Fungsi menyimpan konfigurasi waktu perniagaan baharu
-        function saveSettings() {
-            const openHour = parseInt(document.getElementById('settings-open-hour').value);
-            const closeHour = parseInt(document.getElementById('settings-close-hour').value);
-            const offDay = parseInt(document.getElementById('settings-off-day').value);
-
-            if (isNaN(openHour) || openHour < 0 || openHour > 23 || isNaN(closeHour) || closeHour < 0 || closeHour > 23) {
-                showToast("Sila masukkan waktu jam yang sah (0-23)!");
-                return;
-            }
-
-            if (openHour >= closeHour) {
-                showToast("Waktu buka mesti lebih awal daripada waktu tutup!");
-                return;
-            }
-
-            settings.openHour = openHour;
-            settings.closeHour = closeHour;
-            settings.offDay = offDay;
-
-            localStorage.setItem('home_kitchen_settings', JSON.stringify(settings));
-            showToast("⚙️ Tetapan waktu operasi dikemaskini!");
-
-            renderBusinessHours();
-            updateStoreStatus();
-        }
-
-        // --- ADMIN MENU MANAGEMENT (CRUD) ---
         
-        // Memaparkan senarai menu khusus di panel admin beserta butang SOLD & SOROK/PAPAR
-        function renderAdminMenuList() {
-            const adminList = document.getElementById('admin-menu-list');
-            adminList.innerHTML = '';
-
-            menus.forEach(menu => {
-                const isSold = menu.sold === true;
-                const isHidden = menu.hidden === true;
-                const itemHtml = `
-                    <div class="p-3 bg-white rounded-xl border border-gray-100 shadow-xs flex flex-col gap-2 ${isHidden ? 'opacity-50' : ''}">
-                        <div class="flex items-center justify-between gap-2">
-                            <div class="flex items-center gap-2 overflow-hidden">
-                                <span class="text-lg flex-shrink-0">${menu.emoji || '🍽️'}</span>
-                                <div class="truncate">
-                                    <p class="text-xs font-bold text-gray-800 truncate">
-                                        ${menu.name}
-                                        ${isHidden ? '<span class="text-[9px] text-gray-400 font-normal italic block">(Disorok dari Menu)</span>' : ''}
-                                    </p>
-                                    <p class="text-[10px] text-orange-600 font-extrabold">RM ${Number(menu.price).toFixed(2)}</p>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="flex gap-1 justify-end pt-1 border-t border-gray-50">
-                            <button onclick="toggleHide(${menu.id})" class="flex-1 p-1.5 ${isHidden ? 'bg-indigo-600 hover:bg-indigo-700 text-white' : 'bg-gray-400 hover:bg-gray-500 text-white'} rounded-lg text-[10px] font-bold transition-all text-center">
-                                ${isHidden ? '👁️ Publish' : '🙈 Sorok'}
-                            </button>
-                            <button onclick="toggleSold(${menu.id})" class="flex-1 p-1.5 ${isSold ? 'bg-red-500 hover:bg-red-600 text-white' : 'bg-emerald-500 hover:bg-emerald-600 text-white'} rounded-lg text-[10px] font-bold transition-all text-center">
-                                ${isSold ? 'SOLD' : 'ADA'}
-                            </button>
-                            <button onclick="editMenuItemForm(${menu.id})" class="p-1.5 bg-amber-100 hover:bg-amber-200 text-amber-800 rounded-lg text-[10px] font-bold transition-all text-center">
-                                Edit
-                            </button>
-                            <button onclick="deleteMenuItem(${menu.id})" class="p-1.5 bg-red-50 hover:bg-red-100 text-red-600 rounded-lg text-[10px] font-bold transition-all text-center">
-                                Padam
-                            </button>
-                        </div>
-                    </div>
-                `;
-                adminList.innerHTML += itemHtml;
-            });
-        }
 
         // Fungsi menukar status SOROK / PAPAR (Hide/Publish) item menu
-        function toggleHide(id) {
+        window.toggleHide = function(id) {
             menus = menus.map(m => {
                 if (m.id === id) {
                     return { ...m, hidden: !m.hidden };
@@ -1049,7 +882,7 @@ const firebaseConfig = {
         }
 
         // Fungsi menukar status SOLD / ADA item menu
-        function toggleSold(id) {
+        window.toggleSold = function(id) {
             menus = menus.map(m => {
                 if (m.id === id) {
                     return { ...m, sold: !m.sold };
@@ -1071,7 +904,7 @@ const firebaseConfig = {
         }
 
         // Memersiapkan borang untuk proses kemas kini / edit
-        function editMenuItemForm(id) {
+        window.editMenuItemForm = function(id) {
             const item = menus.find(m => m.id === id);
             if (!item) return;
 
@@ -1086,7 +919,7 @@ const firebaseConfig = {
         }
 
         // Set semula borang admin
-        function resetForm() {
+        window.resetForm = function() {
             document.getElementById('form-title').innerText = "Tambah Menu Baru";
             document.getElementById('menu-id-input').value = '';
             document.getElementById('menu-name-input').value = '';
@@ -1098,7 +931,7 @@ const firebaseConfig = {
         }
 
         // Menyimpan (Tambah baru ATAU kemaskini sedia ada)
-        function saveMenuItem() {
+        window.saveMenuItem = function() {
             const idInput = document.getElementById('menu-id-input').value;
             const name = document.getElementById('menu-name-input').value.trim();
             const price = parseFloat(document.getElementById('menu-price-input').value);
@@ -1143,7 +976,7 @@ const firebaseConfig = {
         }
 
         // Memaparkan menu hidangan setelah dipadam
-        function deleteMenuItem(id) {
+        window.deleteMenuItem = function(id) {
             menus = menus.filter(m => m.id !== id);
             showToast("🗑️ Menu berjaya dipadam.");
             
@@ -1156,7 +989,7 @@ const firebaseConfig = {
         }
 
         // Simpan senarai menu ke LocalStorage peranti
-        function saveToStorage() {
+        window.saveToStorage = function() {
 
         set(ref(window.db, 'menus'), menus);
     	set(ref(window.db, 'settings'), settings);
@@ -1183,18 +1016,220 @@ function loadDataFromFirebase() {
     });
 }
         // PROGRAM LOADING
-        window.onload = function() {
-	    loadDataFromFirebase();
+        
 
-            initCart();
-            renderMenu();
-            renderBusinessHours();
-            toggleMethod('COD');
-            togglePaymentMethod('QR');
-            togglePhase('Fasa 1');
-            updateStoreStatus();
-            calculateTotal();
+window.checkLoginStatus = function() {
+            const loggedIn = sessionStorage.getItem('admin_logged_in') === 'true';
+            const authSection = document.getElementById('auth-section');
+            const adminSection = document.getElementById('admin-section');
+            
+            if (loggedIn) {
+                authSection.classList.add('hidden');
+                adminSection.classList.remove('hidden');
+                renderAdminMenuList();
+                
+                // Isi borang dengan tetapan waktu semasa
+                document.getElementById('settings-open-hour').value = settings.openHour;
+                document.getElementById('settings-close-hour').value = settings.closeHour;
+                document.getElementById('settings-off-day').value = settings.offDay;
+            } else {
+                authSection.classList.remove('hidden');
+                adminSection.classList.add('hidden');
+            }
+        }
+    
+window.toggleSidebar = function() {
+            const sidebar = document.getElementById('sidebar');
+            if (sidebar.classList.contains('translate-x-full')) {
+                sidebar.classList.remove('translate-x-full');
+                sidebar.classList.add('translate-x-0');
+                // Semak status log masuk pembekal semasa membuka sidebar
+                checkLoginStatus();
+            } else {
+                sidebar.classList.remove('translate-x-0');
+                sidebar.classList.add('translate-x-full');
+            }
         };
+
+
+	window.saveToStorage = function() {
+        set(ref(window.db, 'menus'), menus);
+        set(ref(window.db, 'settings'), settings);
+    };
+	window.toggleSidebar = function() {
+            const sidebar = document.getElementById('sidebar');
+            if (sidebar.classList.contains('translate-x-full')) {
+                sidebar.classList.remove('translate-x-full');
+                sidebar.classList.add('translate-x-0');
+                // Semak status log masuk pembekal semasa membuka sidebar
+                checkLoginStatus();
+            } else {
+                sidebar.classList.remove('translate-x-0');
+                sidebar.classList.add('translate-x-full');
+            }
+        };
+window.loginAdmin = function() {
+            const user = document.getElementById('admin-user').value.trim();
+            const pass = document.getElementById('admin-pass').value.trim();
+
+            if (user === 'admin' && pass === 'admin') {
+                sessionStorage.setItem('admin_logged_in', 'true');
+                document.getElementById('admin-user').value = '';
+                document.getElementById('admin-pass').value = '';
+                checkLoginStatus();
+                showToast("🔐 Log masuk admin berjaya!");
+            } else {
+                showToast("❌ Username atau password salah!");
+            }
+        }
+
+        // Fungsi Log Keluar Peniaga
+        window.logoutAdmin = function() {
+            sessionStorage.removeItem('admin_logged_in');
+            checkLoginStatus();
+            showToast("🔓 Anda telah log keluar.");
+        }
+
+        // --- ADMIN SETTINGS CONFIGURATION ---
+        // Fungsi menyimpan konfigurasi waktu perniagaan baharu
+        window.saveSettings = function() {
+            const openHour = parseInt(document.getElementById('settings-open-hour').value);
+            const closeHour = parseInt(document.getElementById('settings-close-hour').value);
+            const offDay = parseInt(document.getElementById('settings-off-day').value);
+
+            if (isNaN(openHour) || openHour < 0 || openHour > 23 || isNaN(closeHour) || closeHour < 0 || closeHour > 23) {
+                showToast("Sila masukkan waktu jam yang sah (0-23)!");
+                return;
+            }
+
+            if (openHour >= closeHour) {
+                showToast("Waktu buka mesti lebih awal daripada waktu tutup!");
+                return;
+            }
+
+            settings.openHour = openHour;
+            settings.closeHour = closeHour;
+            settings.offDay = offDay;
+
+            localStorage.setItem('home_kitchen_settings', JSON.stringify(settings));
+            showToast("⚙️ Tetapan waktu operasi dikemaskini!");
+
+            renderBusinessHours();
+            updateStoreStatus();
+        }
+
+        // --- ADMIN MENU MANAGEMENT (CRUD) ---
+        
+        // Memaparkan senarai menu khusus di panel admin beserta butang SOLD & SOROK/PAPAR
+        window.renderAdminMenuList = function() {
+            const adminList = document.getElementById('admin-menu-list');
+            adminList.innerHTML = '';
+
+            menus.forEach(menu => {
+                const isSold = menu.sold === true;
+                const isHidden = menu.hidden === true;
+                const itemHtml = `
+                    <div class="p-3 bg-white rounded-xl border border-gray-100 shadow-xs flex flex-col gap-2 ${isHidden ? 'opacity-50' : ''}">
+                        <div class="flex items-center justify-between gap-2">
+                            <div class="flex items-center gap-2 overflow-hidden">
+                                <span class="text-lg flex-shrink-0">${menu.emoji || '🍽️'}</span>
+                                <div class="truncate">
+                                    <p class="text-xs font-bold text-gray-800 truncate">
+                                        ${menu.name}
+                                        ${isHidden ? '<span class="text-[9px] text-gray-400 font-normal italic block">(Disorok dari Menu)</span>' : ''}
+                                    </p>
+                                    <p class="text-[10px] text-orange-600 font-extrabold">RM ${Number(menu.price).toFixed(2)}</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex gap-1 justify-end pt-1 border-t border-gray-50">
+                            <button onclick="toggleHide(${menu.id})" class="flex-1 p-1.5 ${isHidden ? 'bg-indigo-600 hover:bg-indigo-700 text-white' : 'bg-gray-400 hover:bg-gray-500 text-white'} rounded-lg text-[10px] font-bold transition-all text-center">
+                                ${isHidden ? '👁️ Publish' : '🙈 Sorok'}
+                            </button>
+                            <button onclick="toggleSold(${menu.id})" class="flex-1 p-1.5 ${isSold ? 'bg-red-500 hover:bg-red-600 text-white' : 'bg-emerald-500 hover:bg-emerald-600 text-white'} rounded-lg text-[10px] font-bold transition-all text-center">
+                                ${isSold ? 'SOLD' : 'ADA'}
+                            </button>
+                            <button onclick="editMenuItemForm(${menu.id})" class="p-1.5 bg-amber-100 hover:bg-amber-200 text-amber-800 rounded-lg text-[10px] font-bold transition-all text-center">
+                                Edit
+                            </button>
+                            <button onclick="deleteMenuItem(${menu.id})" class="p-1.5 bg-red-50 hover:bg-red-100 text-red-600 rounded-lg text-[10px] font-bold transition-all text-center">
+                                Padam
+                            </button>
+                        </div>
+                    </div>
+                `;
+                adminList.innerHTML += itemHtml;
+            });
+        }
+
+
+	window.loadDataFromFirebase = function() {
+          onValue(ref(window.db, 'menus'), (snapshot) => {
+            const data = snapshot.val();
+            menus = data || DEFAULT_MENUS;
+            renderMenu(); // Pastikan fungsi ini pun ada di sini atau global
+        });
+    };
+		tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            // Kita cipta kelas baru bernama 'font-handwritten'
+            handwritten: ['"Pacifico"', 'cursive'],
+          }
+        }
+      }
+    }
+        // Senarai Menu Lalai
+        const DEFAULT_MENUS = [];
+
+        // Nama Hari dalam Bahasa Melayu
+        const DAYS_MALAY = {
+            0: "Ahad",
+            1: "Isnin",
+            2: "Selasa",
+            3: "Rabu",
+            4: "Khamis",
+            5: "Jumaat",
+            6: "Sabtu"
+        };
+
+        // Tetapan waktu operasi lalai
+        const DEFAULT_SETTINGS = {
+            openHour: 7,     // 7:00 AM
+            closeHour: 20,   // 8:00 PM
+            offDay: 3        // Rabu
+        };
+
+        // Dapatkan data dari localStorage
+        let menus = [];
+        let settings = DEFAULT_SETTINGS;
+
+        // Memantau Kuantiti yang dipilih
+        let cart = {};
+
+        // Inisialisasi troli berasaskan item aktif
+        window.initCart = function() {
+            menus.forEach(menu => {
+                if (cart[menu.id] === undefined) {
+                    cart[menu.id] = 0;
+                }
+            });
+            // Bersihkan data cart untuk item yang dibuang
+            const menuIds = menus.map(m => m.id);
+            Object.keys(cart).forEach(id => {
+                if (!menuIds.includes(Number(id))) {
+                    delete cart[id];
+                }
+            });
+        }
+
+        let selectedMethod = 'COD';
+        let selectedPaymentMethod = 'QR';
+        let selectedPhase = 'Fasa 1';
+
+        // Fungsi mengemaskini kuantiti pesanan
+        
     </script>
 </body>
 </html>
