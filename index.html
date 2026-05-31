@@ -7,13 +7,15 @@
     <link rel="icon" type="image/png" href="icon.png">
     <link rel="apple-touch-icon" href="icon.png">
 
-    <!-- Tailwind CSS untuk reka bentuk yang moden dan responsif -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Google Fonts untuk tipografi premium -->
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght=300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet">
+    
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+
     <style>
         body {
             font-family: 'Plus Jakarta Sans', sans-serif;
@@ -29,13 +31,9 @@
 </head>
 <body class="min-h-screen pb-24 antialiased text-gray-800 relative">
 
-    <!-- SIDEBAR / HAMBURGER DRAWER -->
     <div id="sidebar" class="fixed inset-0 z-50 translate-x-full transition-transform duration-300 ease-in-out">
-        <!-- Backdrop Blur Overlay -->
         <div onclick="toggleSidebar()" class="absolute inset-0 bg-black/40 backdrop-blur-xs"></div>
-        <!-- Drawer Container -->
         <div class="absolute right-0 top-0 bottom-0 w-80 max-w-[85vw] bg-white shadow-2xl p-6 flex flex-col overflow-y-auto">
-            <!-- Header Sidebar -->
             <div class="flex justify-between items-center mb-6 border-b pb-4">
                 <h3 class="text-md font-extrabold text-red-800">Administratorin</h3>
                 <button onclick="toggleSidebar()" class="p-2 rounded-xl hover:bg-gray-100 text-gray-500 transition-all">
@@ -45,7 +43,6 @@
                 </button>
             </div>
 
-            <!-- PORTAL LOGIN (Jika Belum Login) -->
             <div id="auth-section" class="space-y-4">
                 <p class="text-xs text-red-500 leading-relaxed">Restricted.</p>
                 <div class="space-y-3">
@@ -63,14 +60,12 @@
                 </div>
             </div>
 
-            <!-- CONTROL PANEL ADMIN (Jika Berjaya Login) -->
             <div id="admin-section" class="hidden space-y-6">
                 <div class="flex justify-between items-center bg-emerald-50 border border-emerald-100 p-2.5 rounded-xl">
                     <span class="text-xs font-extrabold text-emerald-700">🔒 Mod Peniaga Aktif</span>
                     <button onclick="logoutAdmin()" class="text-[10px] text-red-600 hover:underline font-bold">Log Keluar</button>
                 </div>
 
-                <!-- Borang Tetapan Waktu Operasi (Dinamik) -->
                 <div class="bg-orange-50/50 p-4 rounded-2xl border border-orange-200/50 space-y-3">
                     <h4 class="text-xs font-extrabold text-orange-800 capitalize tracking-wider">⏱️ Tetapan Waktu Operasi</h4>
                     <div class="grid grid-cols-2 gap-2">
@@ -99,7 +94,6 @@
                     <button onclick="saveSettings()" class="w-full bg-orange-600 hover:bg-orange-700 text-white text-xs font-bold py-2.5 rounded-xl transition-all shadow-sm">Simpan Tetapan Waktu</button>
                 </div>
 
-                <!-- Borang Urus Menu (Tambah / Edit) -->
                 <div class="bg-amber-50/50 p-4 rounded-2xl border border-amber-200/50 space-y-3">
                     <h4 id="form-title" class="text-xs font-extrabold text-amber-800 capitalize tracking-wider">Tambah Menu Baru</h4>
                     <input type="hidden" id="menu-id-input">
@@ -123,26 +117,21 @@
                     </div>
                 </div>
 
-                <!-- Senarai Menu Urus -->
                 <div class="space-y-3">
                     <h4 class="text-xs font-extrabold text-gray-700 capitalize tracking-wider">Senarai Menu Kedai</h4>
                     <div id="admin-menu-list" class="space-y-2">
-                        <!-- Dynamic List Generated from JS -->
-                    </div>
+                        </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Container Utama (Dioptimumkan untuk paparan telefon bimbit / Mobile-First) -->
     <div class="max-w-md mx-auto px-4 pt-6">
 
-        <!-- NAVIGATION TOP BAR -->
         <div class="flex justify-center items-center mb-4">
     <span class="text-sm font-extrabold tracking-widest text-amber-800 capitalize bg-amber-100/60 px-4 py-1.5 rounded-full border border-amber-200/50 font-['Montserrat',_sans-serif]">
         Home Kitchen @ Lagenda
     </span>
-            <!-- Hamburger Menu Button -->
             <button onclick="toggleSidebar()" class="p-2 rounded-2xl bg-white border border-gray-200 shadow-sm text-gray-700 hover:bg-gray-50 active:scale-95 transition-all">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
@@ -150,36 +139,29 @@
             </button>
         </div>
 
-        <!-- HEADER / HERO SECTION -->
         <div class="relative overflow-hidden rounded-3xl bg-gradient-to-br from-amber-500 to-orange-600 text-white p-6 shadow-xl mb-6">
-            <!-- Corak Hiasan Latar Belakang -->
             <div class="absolute -right-10 -top-10 w-40 h-40 bg-white/10 rounded-full blur-xl"></div>
             <div class="absolute -left-10 -bottom-10 w-40 h-40 bg-black/10 rounded-full blur-xl"></div>
 
             <div class="relative z-10 flex flex-col items-center text-center">
-                <!-- Lencana Status Operasi Dinamik -->
                 <div id="status-badge" class="mb-4 inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold shadow-sm transition-all duration-300 bg-emerald-500 text-white glow-pulse">
                     <span class="w-2 h-2 rounded-full bg-white animate-ping"></span>
                     <span id="status-text">OPEN NOW!!</span>
                 </div>
 
-                <!-- Logo / Avatar -->
                 <div class="w-24 h-24 bg-white rounded-full p-1.5 shadow-lg mb-3 flex items-center justify-center">
                     <div class="w-full h-full bg-amber-100 rounded-full flex items-center justify-center text-4xl">
                         <img src="logo.png" alt="Logo Home Kitchen" class="w-full h-full rounded-full object-cover">
                     </div>
                 </div>
 
-                <!-- Nama Kedai & Slogan -->
-               <h1 class="text-4xl font-bold tracking-tight font-handwritten">Home Kitchen</h1>
+                <h1 class="text-4xl font-bold tracking-tight font-handwritten">Home Kitchen</h1>
                 <p class="text-amber-100 text-xs font-semibold capitalize tracking-wider mt-1">Homemade Food • Order Like A Boss</p>
                 
-                <!-- Tagline Jualan (Copywriting) -->
                 <p class="text-sm italic mt-3 text-white/95 max-w-xs font-medium">
                     “Insha Allah sedap...”
                 </p>
 
-                <!-- Kawasan Perkhidmatan -->
                 <div class="mt-4 inline-flex items-center gap-1.5 bg-white/15 px-4 py-1.5 rounded-full text-xs font-medium">
                     <svg class="w-4 h-4 text-amber-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
                     Lagenda @ Teluk Intan
@@ -187,8 +169,7 @@
             </div>
         </div>
 
-        <!-- BUTANG AKSES PANTAS -->
-   <div class="grid grid-cols-2 gap-3 mb-6">
+        <div class="grid grid-cols-2 gap-3 mb-6">
     <a href="https://wa.me/601160653940" target="_blank" rel="noopener noreferrer" class="flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 px-4 rounded-2xl shadow-md transition-all text-sm">
         <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24">
             <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946C.06 5.348 5.397.01 12.008.01c3.202.001 6.212 1.246 8.477 3.513 2.262 2.268 3.507 5.28 3.505 8.484-.004 6.657-5.34 11.997-11.953 11.997-2.005-.001-3.973-.502-5.724-1.457L0 24zm6.59-4.846c1.6.95 3.188 1.449 4.825 1.451 5.436 0 9.86-4.37 9.864-9.799.002-2.63-1.023-5.101-2.885-6.965C16.528 1.989 14.062 1.057 11.5 1.057 6.059 1.057 1.635 5.428 1.63 10.856c-.001 1.716.463 3.39 1.343 4.888l-.997 3.642 3.73-.974z"/>
@@ -204,11 +185,9 @@
     </button>
 </div>
 
-        <!-- MAKLUMAT OPERASI & SERVIS -->
         <div class="glass-card rounded-3xl p-5 shadow-sm mb-6 space-y-4">
             <h3 class="text-sm font-extrabold text-orange-600 capitalize tracking-wider">Info Servis & Waktu Operasi</h3>
             
-            <!-- Grid Servis dan Waktu -->
             <div class="grid grid-cols-2 gap-4">
                 <div class="bg-amber-50/60 p-3 rounded-2xl border border-amber-100/50">
                     <span class="text-xs text-amber-800 font-bold block mb-1">🛵 Servis Tersedia</span>
@@ -231,7 +210,6 @@
             </div>
         </div>
 
-        <!-- MENU HIGHLIGHT / ORDER BUILDER (HIGH CONVERTING) -->
         <div class="glass-card rounded-3xl p-5 shadow-md mb-6">
             <div class="flex items-center justify-between mb-2">
                 <h3 class="text-sm font-extrabold text-orange-600 capitalize tracking-wider">📋 Menu</h3>
@@ -239,18 +217,14 @@
             </div>
             <p class="text-xs text-gray-500 mb-4">Pilih menu dan kuantiti di bawah untuk bina pesanan WhatsApp anda secara automatik!</p>
 
-            <!-- Senarai Menu (Generated Dynamically via Javascript) -->
             <div class="space-y-3" id="menu-list">
-                <!-- Dynamically Rendered -->
-            </div>
+                </div>
 
-            <!-- Ruangan Remark (Catatan Tambahan) -->
             <div class="mt-4">
                 <label class="block text-xs font-bold text-gray-700 mb-1">Nota / Catatan Tambahan (Remark):</label>
                 <textarea id="order-remark" rows="2" placeholder="Cth: Sambal asing, sambal lebih, tak nak sayur, dll." class="w-full text-xs p-2.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-orange-500 bg-white resize-none"></textarea>
             </div>
 
-            <!-- CARA PENGHANTARAN & FORMA PESANAN -->
             <div class="mt-5 pt-4 border-t border-dashed border-gray-200 space-y-3">
                 <div>
                     <label class="block text-xs font-bold text-gray-700 mb-1">Kaedah Pesanan:</label>
@@ -271,7 +245,6 @@
                     <input type="text" id="delivery-address" placeholder="Isi nombor rumah dan nombor lorong sahaja. Cth: 1, Lrg 99" class="w-full text-xs p-2.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-orange-500 bg-white">
 
                   <p class="text-xs text-red-500 mb-4">Nota! Sila pastikan pilihan Fasa anda dibawah</p>  
-                    <!-- Pilihan Fasa Kawasan (Fasa 1 atau Fasa 3) -->
                     <div class="mt-3">
                         <label class="block text-xs font-bold text-gray-700 mb-1"></label>
                         <div class="grid grid-cols-2 gap-2">
@@ -287,7 +260,6 @@
                     </div>
                 </div>
 
-                <!-- Pilihan Kaedah Pembayaran (QR atau COD) -->
                 <div>
                     <label class="block text-xs font-bold text-gray-700 mb-1">Kaedah Pembayaran:</label>
                     <div class="grid grid-cols-2 gap-2">
@@ -304,23 +276,19 @@
             </div>
         </div>
 
-        <!-- CARA ORDER STEPPER -->
         <div class="glass-card rounded-3xl p-5 shadow-sm mb-6">
             <h3 class="text-sm font-extrabold text-orange-600 capitalize tracking-wider mb-4">📦 Cara Order</h3>
             <div class="relative pl-6 space-y-4 before:absolute before:left-2 before:top-1.5 before:bottom-1.5 before:w-0.5 before:bg-orange-200">
-                <!-- Step 1 -->
                 <div class="relative">
                     <div class="absolute -left-[21px] top-0 w-4.5 h-4.5 rounded-full bg-orange-500 border-2 border-white flex items-center justify-center text-[10px] text-white font-extrabold">1</div>
                     <p class="text-xs font-bold text-gray-800">Pilih Menu & Kuantiti</p>
                     <p class="text-[10px] text-gray-500">Tentukan hidangan dan cara penghantaran di atas.</p>
                 </div>
-                <!-- Step 2 -->
                 <div class="relative">
                     <div class="absolute -left-[21px] top-0 w-4.5 h-4.5 rounded-full bg-orange-500 border-2 border-white flex items-center justify-center text-[10px] text-white font-extrabold">2</div>
                     <p class="text-xs font-bold text-gray-800">Klik "Pesan Sekarang"</p>
                     <p class="text-[10px] text-gray-500">Sistem akan menyusun butiran tempahan anda secara kemas.</p>
                 </div>
-                <!-- Step 3 -->
                 <div class="relative">
                     <div class="absolute -left-[21px] top-0 w-4.5 h-4.5 rounded-full bg-orange-500 border-2 border-white flex items-center justify-center text-[10px] text-white font-extrabold">3</div>
                     <p class="text-xs font-bold text-gray-800">Sahkan Pembayaran</p>
@@ -329,7 +297,6 @@
             </div>
         </div>
 
-        <!-- KAEDAH PEMBAYARAN -->
         <div class="glass-card rounded-3xl p-5 shadow-sm mb-6">
             <h3 class="text-sm font-extrabold text-orange-600 capitalize tracking-wider mb-3">💳 Kaedah Pembayaran</h3>
             <div class="grid grid-cols-3 gap-2 text-center text-xs font-bold text-gray-700">
@@ -348,12 +315,10 @@
             </div>
         </div>
 
-        <!-- NOTIFIKASI TOAST (SISTEM MODAL VANILLA) -->
         <div id="toast" class="fixed bottom-24 left-1/2 -translate-x-1/2 bg-gray-900 text-white text-xs py-2.5 px-4 rounded-full shadow-lg opacity-0 pointer-events-none transition-all duration-300 z-50 flex items-center gap-2">
             <span id="toast-msg">Mesej disalin!</span>
         </div>
 
-        <!-- FOOTER / COPYRIGHT NOTICE -->
         <footer class="mt-8 mb-4 text-center">
             <p class="text-[10px] text-gray-400 font-semibold tracking-wider">
                 &copy; 2026 Home Kitchen @ Lagenda. Hak Cipta Terpelihara.
@@ -362,8 +327,7 @@
 
     </div>
 
-    <!-- STICKY BUTTON ORDER DI BAWAH (CONVERSION BOOSTER) -->
-  <div class="fixed bottom-0 left-0 right-0 max-w-md mx-auto p-4 bg-transparent z-40">
+    <div class="fixed bottom-0 left-0 right-0 max-w-md mx-auto p-4 bg-transparent z-40">
     <button onclick="sendOrder()" id="order-btn" class="w-full bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white font-extrabold py-3.5 px-6 rounded-2xl shadow-lg shadow-orange-500/20 flex items-center justify-between transition-all duration-200 transform hover:-translate-y-0.5 active:translate-y-0">
         <span class="flex items-center gap-2">
             🛍️ Pesan Sekarang
@@ -374,7 +338,6 @@
     </button>
 </div>
 
-    <!-- POP-UP MODAL APABILA PERNIAGAAN DITUTUP (LOCK ORDER SYSTEM) -->
     <div id="closed-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs hidden transition-opacity duration-300 opacity-0">
         <div class="bg-white rounded-3xl p-6 max-w-sm w-full text-center shadow-2xl border border-gray-100 transform scale-95 transition-transform duration-300" id="closed-modal-content">
             <div class="w-16 h-16 bg-red-100 text-red-600 rounded-full flex items-center justify-center text-3xl mx-auto mb-4">⚠️</div>
@@ -384,7 +347,6 @@
         </div>
     </div>
 
-    <!-- POP-UP MODAL APABILA ITEM SOLD OUT -->
     <div id="sold-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs hidden transition-opacity duration-300 opacity-0">
         <div class="bg-white rounded-3xl p-6 max-w-sm w-full text-center shadow-2xl border border-gray-100 transform scale-95 transition-transform duration-300" id="sold-modal-content">
             <div class="w-16 h-16 bg-red-100 text-red-600 rounded-full flex items-center justify-center text-3xl mx-auto mb-4">🚫</div>
@@ -394,45 +356,96 @@
         </div>
     </div>
 
-    <!-- JAVASCRIPT LOGIK & INTERAKTIF -->
     <script>
 		tailwind.config = {
-      theme: {
-        extend: {
-          fontFamily: {
-            // Kita cipta kelas baru bernama 'font-handwritten'
-            handwritten: ['"Pacifico"', 'cursive'],
-          }
+            theme: {
+                extend: {
+                fontFamily: {
+                    handwritten: ['"Pacifico"', 'cursive'],
+                }
+                }
+            }
         }
-      }
-    }
+
+        // --- KONFIGURASI FIREBASE ---
+        // Sila copy dan paste objek firebaseConfig anda dari Firebase Console ke ruang bawah ini
+        const firebaseConfig = {
+            apiKey: "YOUR_API_KEY_HERE",
+            authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+            databaseURL: "https://YOUR_PROJECT_ID-default-rtdb.asia-southeast1.firebasedatabase.app", // Penting untuk Realtime Database
+            projectId: "YOUR_PROJECT_ID",
+            storageBucket: "YOUR_PROJECT_ID.appspot.com",
+            messagingSenderId: "YOUR_SENDER_ID",
+            appId: "YOUR_APP_ID"
+        };
+
+        // Initialize Firebase
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
+        const database = firebase.database();
+
         // Senarai Menu Lalai
         const DEFAULT_MENUS = [];
 
         // Nama Hari dalam Bahasa Melayu
         const DAYS_MALAY = {
-            0: "Ahad",
-            1: "Isnin",
-            2: "Selasa",
-            3: "Rabu",
-            4: "Khamis",
-            5: "Jumaat",
-            6: "Sabtu"
+            0: "Ahad", 1: "Isnin", 2: "Selasa", 3: "Rabu", 4: "Khamis", 5: "Jumaat", 6: "Sabtu"
         };
 
         // Tetapan waktu operasi lalai
         const DEFAULT_SETTINGS = {
-            openHour: 7,     // 7:00 AM
-            closeHour: 20,   // 8:00 PM
-            offDay: 3        // Rabu
+            openHour: 7,
+            closeHour: 20,
+            offDay: 3
         };
 
-        // Dapatkan data dari localStorage
-        let menus = JSON.parse(localStorage.getItem('home_kitchen_menus')) || DEFAULT_MENUS;
-        let settings = JSON.parse(localStorage.getItem('home_kitchen_settings')) || DEFAULT_SETTINGS;
-
-        // Memantau Kuantiti yang dipilih
+        // Pembolehubah Global
+        let menus = [];
+        let settings = DEFAULT_SETTINGS;
         let cart = {};
+        let selectedMethod = 'COD';
+        let selectedPaymentMethod = 'QR';
+        let selectedPhase = 'Fasa 1';
+
+        // --- FIREBASE SYNC (Penyegerakan Automatik) ---
+        
+        // Dengar Perubahan Tetapan (Settings)
+        database.ref('settings').on('value', (snapshot) => {
+            const data = snapshot.val();
+            if (data) {
+                settings = data;
+            } else {
+                // Jika DB kosong, push nilai lalai
+                database.ref('settings').set(DEFAULT_SETTINGS);
+            }
+            renderBusinessHours();
+            updateStoreStatus();
+            
+            // Kemaskini borang di bahagian admin jika admin sedang login
+            if (document.getElementById('settings-open-hour')) {
+                document.getElementById('settings-open-hour').value = settings.openHour;
+                document.getElementById('settings-close-hour').value = settings.closeHour;
+                document.getElementById('settings-off-day').value = settings.offDay;
+            }
+        });
+
+        // Dengar Perubahan Menu (Menus)
+        database.ref('menus').on('value', (snapshot) => {
+            const data = snapshot.val();
+            if (data) {
+                // Firebase mungkin return object sekiranya index array berubah
+                menus = Array.isArray(data) ? data : Object.values(data);
+            } else {
+                menus = [];
+            }
+            initCart();
+            renderMenu();
+            if (sessionStorage.getItem('admin_logged_in') === 'true') {
+                renderAdminMenuList();
+            }
+            calculateTotal();
+        });
 
         // Inisialisasi troli berasaskan item aktif
         function initCart() {
@@ -449,10 +462,6 @@
                 }
             });
         }
-
-        let selectedMethod = 'COD';
-        let selectedPaymentMethod = 'QR';
-        let selectedPhase = 'Fasa 1';
 
         // Fungsi mengemaskini kuantiti pesanan
         function updateQty(id, change) {
@@ -534,7 +543,6 @@
                                 <p class="text-xs font-extrabold text-orange-600">RM ${Number(menu.price).toFixed(2)}</p>
                             </div>
                         </div>
-                        <!-- Pengawal Kuantiti -->
                         <div class="flex items-center gap-2.5 bg-white px-2 py-1 rounded-full shadow-sm border border-gray-100">
                             <button onclick="updateQty(${menu.id}, -1)" class="w-6 h-6 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-800 font-bold flex items-center justify-center transition-all text-xs">-</button>
                             <span id="qty-${menu.id}" class="text-xs font-bold w-4 text-center">${currentQty}</span>
@@ -550,8 +558,6 @@
         function toggleMethod(method) {
             selectedMethod = method;
             const addressContainer = document.getElementById('address-container');
-            
-            // Tukar reka bentuk butang terpilih
             const btnCod = document.getElementById('label-cod');
             const btnPickup = document.getElementById('label-pickup');
 
@@ -565,7 +571,6 @@
                 btnPickup.className = "flex items-center justify-center gap-1.5 p-2 rounded-xl border text-xs font-bold cursor-pointer transition-all bg-amber-50 border-amber-500 text-amber-700";
             }
 
-            // Kemaskini jumlah bayaran mengikut penukaran kaedah
             calculateTotal();
         }
 
@@ -602,7 +607,7 @@
         // Memeriksa adakah kedai sedang beroperasi berdasarkan tetapan
         function isStoreOpen() {
             const now = new Date();
-            const currentDay = now.getDay(); // 0 = Ahad, 1 = Isnin ...
+            const currentDay = now.getDay();
             const currentHour = now.getHours();
 
             const isOffDay = (parseInt(settings.offDay) !== -1 && currentDay === parseInt(settings.offDay));
@@ -624,7 +629,6 @@
             }, 10);
         }
 
-        // Fungsi menutup pop-up halangan operasi
         function closeClosedModal() {
             const modal = document.getElementById('closed-modal');
             const content = document.getElementById('closed-modal-content');
@@ -637,7 +641,6 @@
             }, 300);
         }
 
-        // Fungsi mengawal pop-up halangan item sold out
         function showSoldModal(itemName) {
             document.getElementById('sold-modal-msg').innerText = `Harap maaf, hidangan "${itemName}" telah SOLD OUT. Sila kurangkan kuantiti item tersebut kepada 0 untuk meneruskan pesanan anda.`;
             const modal = document.getElementById('sold-modal');
@@ -651,7 +654,6 @@
             }, 10);
         }
 
-        // Fungsi menutup pop-up item sold out
         function closeSoldModal() {
             const modal = document.getElementById('sold-modal');
             const content = document.getElementById('sold-modal-content');
@@ -666,7 +668,6 @@
 
         // Fungsi menghantar pesanan lengkap ke WhatsApp
         function sendOrder() {
-            // HALANGAN OPERASI: Jika perniagaan belum bermula / ditutup, halang tempahan
             if (!isStoreOpen()) {
                 showClosedModal();
                 return;
@@ -678,9 +679,7 @@
             let hasSoldItem = false;
             let soldItemName = "";
 
-            // Membina teks senarai barangan
             menus.forEach(menu => {
-                // Tapis pesanan daripada item yang disorok sahaja (perlindungan tambahan)
                 if (menu.hidden) {
                     cart[menu.id] = 0;
                     return;
@@ -698,19 +697,16 @@
                 }
             });
 
-            // Amaran jika pengguna tidak memilih sebarang item
             if (!hasItems) {
                 showToast("Sila pilih sekurang-kurangnya 1 hidangan di atas terlebih dahulu!");
                 return;
             }
 
-            // SEKAT CHECKOUT JIKA TERDAPAT ITEM YANG SOLD
             if (hasSoldItem) {
                 showSoldModal(soldItemName);
                 return;
             }
 
-            // Maklumat kaedah penghantaran
             let deliveryText = "";
             if (selectedMethod === 'COD') {
                 const address = document.getElementById('delivery-address').value.trim();
@@ -719,28 +715,23 @@
                     document.getElementById('delivery-address').focus();
                     return;
                 }
-                // Tambah Caj COD ke WhatsApp invoice
                 total += 1.00;
                 deliveryText = `🛵 *Kaedah:* Delivery \n💵 *Caj COD:* +RM 1.00\n📍 *Alamat:* ${address} (${selectedPhase})\n`;
             } else {
                 deliveryText = `🏪 *Kaedah:* Self Pick Up\n`;
             }
 
-            // Maklumat kaedah pembayaran ke WhatsApp
             let paymentText = `💳 *Kaedah Pembayaran:* ${selectedPaymentMethod === 'QR' ? 'QR DuitNow' : 'Tunai/ Cash'}\n`;
 
-            // Maklumat Remark (Catatan Tambahan) ke WhatsApp
             const remark = document.getElementById('order-remark').value.trim();
             let remarkText = "";
             if (remark) {
                 remarkText = `📝 *Remark:* ${remark}\n`;
             }
 
-            // Membina template mesej WhatsApp rasmi yang mesra jualan
             const waNumber = "601160653940";
             const fullMessage = `Assalamualaikum dan Hai Home Kitchen, saya ingin memesan makanan seperti berikut:\n\n${orderText}\n${remarkText}${deliveryText}${paymentText}💰 *Jumlah Pembayaran:* RM ${total.toFixed(2)}\n\nMohon sahkan pesanan saya ya! Terima kasih.`;
 
-            // Buka API WhatsApp secara langsung
             const encodedMessage = encodeURIComponent(fullMessage);
             window.open(`https://wa.me/${waNumber}?text=${encodedMessage}`, '_blank');
         }
@@ -749,8 +740,7 @@
         function format12Hour(hour) {
             const ampm = hour >= 12 ? 'Malam' : 'Pagi';
             let hour12 = hour % 12;
-            hour12 = hour12 ? hour12 : 12; // Menukarkan 0 kepada 12
-            // Istilah Melayu mengikut waktu am
+            hour12 = hour12 ? hour12 : 12; 
             let malaysianAmPm = 'pagi';
             if (hour >= 12 && hour < 14) malaysianAmPm = 'tengah hari';
             else if (hour >= 14 && hour < 19) malaysianAmPm = 'petang';
@@ -759,7 +749,6 @@
             return `${hour12}:00 ${malaysianAmPm}`;
         }
 
-        // Memaparkan dan memformat maklumat waktu operasi pada kad pelanggan
         function renderBusinessHours() {
             document.getElementById('display-op-hours').innerText = `${format12Hour(settings.openHour)} – ${format12Hour(settings.closeHour)}`;
             
@@ -771,16 +760,13 @@
             }
         }
 
-        // Menyemak Status Operasi Semasa (Live Open/Closed Status)
         function updateStoreStatus() {
             const badge = document.getElementById('status-badge');
             const statusText = document.getElementById('status-text');
             const orderBtn = document.getElementById('order-btn');
-
             const open = isStoreOpen();
 
             if (!open) {
-                // TUKAR TAMPILAN STATUS KEPADA TUTUP
                 badge.className = "mb-4 inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold shadow-sm transition-all duration-300 bg-red-100 text-red-700 border border-red-200";
                 
                 const now = new Date();
@@ -791,7 +777,6 @@
                     statusText.innerText = `Closed (BUKA ${format12Hour(settings.openHour)})`;
                 }
 
-                // KUNCI BUTANG: Tukar butang tempahan menjadi kelabu & bertanda kunci (Visual Locked)
                 orderBtn.className = "w-full bg-gradient-to-r from-gray-400 to-gray-500 hover:from-gray-500 hover:to-gray-600 text-white font-extrabold py-3.5 px-6 rounded-2xl shadow-lg shadow-gray-400/20 flex items-center justify-between transition-all duration-200 transform cursor-not-allowed opacity-90";
                 orderBtn.innerHTML = `
                     <span class="flex items-center gap-2">
@@ -802,11 +787,9 @@
                     </span>
                 `;
             } else {
-                // TAMPILAN STATUS KEPADA BUKA
                 badge.className = "mb-4 inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold shadow-sm transition-all duration-300 bg-emerald-500 text-white glow-pulse";
                 statusText.innerText = "OPEN NOW!! ";
 
-                // BUKA KUNCI BUTANG: Kembalikan butang tempahan asal yang ceria
                 orderBtn.className = "w-full bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white font-extrabold py-3.5 px-6 rounded-2xl shadow-lg shadow-orange-500/20 flex items-center justify-between transition-all duration-200 transform hover:-translate-y-0.5 active:translate-y-0";
                 orderBtn.innerHTML = `
                     <span class="flex items-center gap-2">
@@ -817,12 +800,9 @@
                     </span>
                 `;
             }
-
-            // Kemaskini jumlah troli semula selepas perubahan struktur butang
             calculateTotal();
         }
 
-        // Fungsi memaparkan notifikasi kecil (Toast Notification)
         function showToast(message) {
             const toast = document.getElementById('toast');
             const toastMsg = document.getElementById('toast-msg');
@@ -837,7 +817,6 @@
             }, 3000);
         }
 
-        // Fungsi berkongsi kad bisnes secara pintar
         function shareCard() {
             if (navigator.share) {
                 navigator.share({
@@ -852,7 +831,6 @@
             }
         }
 
-        // Fungsi menyalin link kad ke papan keratan (fallback kongsi)
         function copyToClipboard() {
             const dummy = document.createElement('input');
             document.body.appendChild(dummy);
@@ -863,13 +841,11 @@
             showToast("Pautan kad berjaya disalin! Kongsikan kepada rakan.");
         }
 
-        // --- SIDEBAR INTERACTIVE LOGIC ---
         function toggleSidebar() {
             const sidebar = document.getElementById('sidebar');
             if (sidebar.classList.contains('translate-x-full')) {
                 sidebar.classList.remove('translate-x-full');
                 sidebar.classList.add('translate-x-0');
-                // Semak status log masuk pembekal semasa membuka sidebar
                 checkLoginStatus();
             } else {
                 sidebar.classList.remove('translate-x-0');
@@ -877,7 +853,6 @@
             }
         }
 
-        // Memeriksa status log masuk dalam sesi semasa
         function checkLoginStatus() {
             const loggedIn = sessionStorage.getItem('admin_logged_in') === 'true';
             const authSection = document.getElementById('auth-section');
@@ -887,18 +862,12 @@
                 authSection.classList.add('hidden');
                 adminSection.classList.remove('hidden');
                 renderAdminMenuList();
-                
-                // Isi borang dengan tetapan waktu semasa
-                document.getElementById('settings-open-hour').value = settings.openHour;
-                document.getElementById('settings-close-hour').value = settings.closeHour;
-                document.getElementById('settings-off-day').value = settings.offDay;
             } else {
                 authSection.classList.remove('hidden');
                 adminSection.classList.add('hidden');
             }
         }
 
-        // Fungsi Log Masuk Peniaga
         function loginAdmin() {
             const user = document.getElementById('admin-user').value.trim();
             const pass = document.getElementById('admin-pass').value.trim();
@@ -914,15 +883,15 @@
             }
         }
 
-        // Fungsi Log Keluar Peniaga
         function logoutAdmin() {
             sessionStorage.removeItem('admin_logged_in');
             checkLoginStatus();
             showToast("🔓 Anda telah log keluar.");
         }
 
-        // --- ADMIN SETTINGS CONFIGURATION ---
-        // Fungsi menyimpan konfigurasi waktu perniagaan baharu
+        // --- PENGURUSAN ADMIN KE FIREBASE ---
+
+        // Fungsi menyimpan konfigurasi waktu perniagaan ke Firebase
         function saveSettings() {
             const openHour = parseInt(document.getElementById('settings-open-hour').value);
             const closeHour = parseInt(document.getElementById('settings-close-hour').value);
@@ -932,7 +901,6 @@
                 showToast("Sila masukkan waktu jam yang sah (0-23)!");
                 return;
             }
-
             if (openHour >= closeHour) {
                 showToast("Waktu buka mesti lebih awal daripada waktu tutup!");
                 return;
@@ -942,16 +910,14 @@
             settings.closeHour = closeHour;
             settings.offDay = offDay;
 
-            localStorage.setItem('home_kitchen_settings', JSON.stringify(settings));
-            showToast("⚙️ Tetapan waktu operasi dikemaskini!");
-
-            renderBusinessHours();
-            updateStoreStatus();
+            // Push ke Firebase
+            database.ref('settings').set(settings).then(() => {
+                showToast("⚙️ Tetapan waktu operasi dikemaskini!");
+            }).catch(error => {
+                showToast("❌ Ralat Firebase: " + error.message);
+            });
         }
-
-        // --- ADMIN MENU MANAGEMENT (CRUD) ---
         
-        // Memaparkan senarai menu khusus di panel admin beserta butang SOLD & SOROK/PAPAR
         function renderAdminMenuList() {
             const adminList = document.getElementById('admin-menu-list');
             adminList.innerHTML = '';
@@ -993,7 +959,6 @@
             });
         }
 
-        // Fungsi menukar status SOROK / PAPAR (Hide/Publish) item menu
         function toggleHide(id) {
             menus = menus.map(m => {
                 if (m.id === id) {
@@ -1001,21 +966,9 @@
                 }
                 return m;
             });
-            saveToStorage();
-
-            // Set kuantiti item dalam cart kepada 0 jika ia disorok
-            const item = menus.find(m => m.id === id);
-            if (item && item.hidden) {
-                cart[id] = 0;
-            }
-
-            renderMenu();
-            renderAdminMenuList();
-            calculateTotal();
-            showToast("ℹ️ Status paparan menu dikemaskini!");
+            saveToStorage("ℹ️ Status paparan menu dikemaskini!");
         }
 
-        // Fungsi menukar status SOLD / ADA item menu
         function toggleSold(id) {
             menus = menus.map(m => {
                 if (m.id === id) {
@@ -1023,21 +976,9 @@
                 }
                 return m;
             });
-            saveToStorage();
-            
-            // Set kuantiti item dalam cart kepada 0 jika ia ditukar kepada SOLD
-            const item = menus.find(m => m.id === id);
-            if (item && item.sold) {
-                cart[id] = 0;
-            }
-            
-            renderMenu();
-            renderAdminMenuList();
-            calculateTotal();
-            showToast("ℹ️ Status ketersediaan menu dikemaskini!");
+            saveToStorage("ℹ️ Status ketersediaan menu dikemaskini!");
         }
 
-        // Memersiapkan borang untuk proses kemas kini / edit
         function editMenuItemForm(id) {
             const item = menus.find(m => m.id === id);
             if (!item) return;
@@ -1048,11 +989,9 @@
             document.getElementById('menu-price-input').value = item.price;
             document.getElementById('menu-emoji-input').value = item.emoji || '🍽️';
 
-            // Papar butang batal
             document.getElementById('cancel-edit-btn').classList.remove('hidden');
         }
 
-        // Set semula borang admin
         function resetForm() {
             document.getElementById('form-title').innerText = "Tambah Menu Baru";
             document.getElementById('menu-id-input').value = '';
@@ -1060,11 +999,9 @@
             document.getElementById('menu-price-input').value = '';
             document.getElementById('menu-emoji-input').value = '';
 
-            // Sembunyikan butang batal
             document.getElementById('cancel-edit-btn').classList.add('hidden');
         }
 
-        // Menyimpan (Tambah baru ATAU kemaskini sedia ada)
         function saveMenuItem() {
             const idInput = document.getElementById('menu-id-input').value;
             const name = document.getElementById('menu-name-input').value.trim();
@@ -1076,8 +1013,8 @@
                 return;
             }
 
+            let alertMsg = "";
             if (idInput !== '') {
-                // Mod: KEMASKINI (Edit)
                 const targetId = parseInt(idInput);
                 menus = menus.map(m => {
                     if (m.id === targetId) {
@@ -1085,9 +1022,8 @@
                     }
                     return m;
                 });
-                showToast("✅ Menu berjaya dikemaskini!");
+                alertMsg = "✅ Menu berjaya dikemaskini!";
             } else {
-                // Mod: TAMBAH BARU
                 const newId = menus.length > 0 ? Math.max(...menus.map(m => m.id)) + 1 : 0;
                 menus.push({
                     id: newId,
@@ -1097,46 +1033,34 @@
                     sold: false,
                     hidden: false
                 });
-                showToast("✅ Menu baharu berjaya ditambah!");
+                alertMsg = "✅ Menu baharu berjaya ditambah!";
             }
 
-            // Simpan ke storage dan muatkan semula semua elemen UI berkaitan
-            saveToStorage();
             resetForm();
-            initCart();
-            renderMenu();
-            renderAdminMenuList();
-            calculateTotal();
+            saveToStorage(alertMsg);
         }
 
-        // Memaparkan menu hidangan setelah dipadam
         function deleteMenuItem(id) {
             menus = menus.filter(m => m.id !== id);
-            showToast("🗑️ Menu berjaya dipadam.");
-            
-            // Simpan ke storage dan muatkan semula
-            saveToStorage();
-            initCart();
-            renderMenu();
-            renderAdminMenuList();
-            calculateTotal();
+            saveToStorage("🗑️ Menu berjaya dipadam.");
         }
 
-        // Simpan senarai menu ke LocalStorage peranti
-        function saveToStorage() {
-            localStorage.setItem('home_kitchen_menus', JSON.stringify(menus));
+        // Simpan senarai menu ke Firebase (Menggantikan LocalStorage)
+        function saveToStorage(successMsg) {
+            database.ref('menus').set(menus).then(() => {
+                if(successMsg) showToast(successMsg);
+            }).catch(error => {
+                showToast("❌ Ralat Firebase: " + error.message);
+            });
         }
 
         // PROGRAM LOADING
         window.onload = function() {
-            initCart();
-            renderMenu();
-            renderBusinessHours();
             toggleMethod('COD');
             togglePaymentMethod('QR');
             togglePhase('Fasa 1');
-            updateStoreStatus();
-            calculateTotal();
+            // Nota: renderMenu(), initCart(), renderBusinessHours(), updateStoreStatus() 
+            // dipanggil secara automatik melalui fungsi Firebase "on('value')"
         };
     </script>
 </body>
