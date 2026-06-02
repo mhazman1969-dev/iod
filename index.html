@@ -401,9 +401,18 @@
         import { getFirestore, doc, setDoc, getDoc, collection, getDocs, onSnapshot, addDoc, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         // Global Variables provided by environment
-        const firebaseConfig = typeof __firebase_config !== 'undefined' 
-            ? JSON.parse(__firebase_config) 
-            : { apiKey: "", authDomain: "", projectId: "", storageBucket: "", messagingSenderId: "", appId: "" };
+        const firebaseConfig = {
+  apiKey: "AIzaSyBGFSh9njmfPNwQThzxuwOV0ukv2m0Vj30",
+  authDomain: "instant-order-digital.firebaseapp.com",
+  databaseURL: "https://instant-order-digital-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "instant-order-digital",
+  storageBucket: "instant-order-digital.firebasestorage.app",
+  messagingSenderId: "519234009935",
+  appId: "1:519234009935:web:61e144dbbbc0b95db4233a",
+  measurementId: "G-W1ZRKPBFXK"
+
+};
+
 
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
