@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Home Kitchen - Instant Order Digital</title>
-    <link rel="icon" type="image/png" href="icon.png">
+    <link class="rounded-full" rel="icon" type="image/png" href="icon.png">
     <link rel="apple-touch-icon" href="icon.png">
 
     <script src="https://cdn.tailwindcss.com"></script>
@@ -629,6 +629,7 @@
             }
         }
 
+        // Semak status pembukaan waktu
         function isStoreOpen() {
             const now = new Date();
             const currentDay = now.getDay();
@@ -656,7 +657,7 @@
                 orderBtn.innerHTML = `<span>🔒 Perniagaan Ditutup</span><span class="bg-white/20 px-3 py-1 rounded-xl text-sm">RM 0.00</span>`;
             } else {
                 badge.className = "mb-4 inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-sm font-bold shadow-sm transition-all bg-emerald-500 text-white font-lcd tracking-widest";
-statusText.innerText = "OPEN NOW!!";
+                statusText.innerText = "OPEN NOW!!";
                 orderBtn.className = "w-full bg-gradient-to-r from-orange-500 to-amber-500 text-white font-extrabold py-3.5 px-6 rounded-2xl shadow-lg flex items-center justify-between";
                 orderBtn.innerHTML = `<span>🛍️ Pesan Sekarang</span><span id="total-price-tag" class="bg-white/20 px-3 py-1 rounded-xl text-sm">RM 0.00</span>`;
             }
@@ -725,7 +726,9 @@ statusText.innerText = "OPEN NOW!!";
             } catch (e) { console.error(e); }
 
             const fullMessage = `Assalamualaikum, saya ingin memesan makanan:\n\n${orderText}\n${remarkText}${deliveryText}${paymentText}💰 *Jumlah:* RM ${total.toFixed(2)}`;
-            window.open(`https://wa.me/601160653940?text=${encodeURIComponent(fullMessage)}`, '_blank');
+            
+            // PERUBAHAN DI SINI: Menggunakan window.location.href berbanding window.open bagi mengelakkan sekatan Popup Blocker peranti mudah alih
+            window.location.href = `https://wa.me/601160653940?text=${encodeURIComponent(fullMessage)}`;
         }
 
         async function saveSettings() {
