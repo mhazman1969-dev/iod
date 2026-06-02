@@ -176,7 +176,6 @@
     </button>
 </div>
 
-
         <div class="glass-card rounded-3xl p-5 shadow-sm mb-6 space-y-4">
             <h3 class="text-sm font-extrabold text-orange-600 capitalize tracking-wider">Info Servis & Waktu Operasi</h3>
             <div class="grid grid-cols-2 gap-4">
@@ -255,6 +254,7 @@
         <div id="toast" class="fixed bottom-24 left-1/2 -translate-x-1/2 bg-gray-900 text-white text-xs py-2.5 px-4 rounded-full shadow-lg opacity-0 pointer-events-none transition-all duration-300 z-50">
             <span id="toast-msg">Mesej disalin!</span>
         </div>
+
 <!-- CARA ORDER STEPPER -->
         <div class="glass-card rounded-3xl p-5 shadow-sm mb-6">
             <h3 class="text-sm font-extrabold text-orange-600 capitalize tracking-wider mb-4">📦 Cara Order</h3>
@@ -569,7 +569,7 @@
             
             const qtyLabel = document.getElementById(`qty-${id}`);
             if (qtyLabel) qtyLabel.innerText = window.cart[id];
-            calculateTotal();
+            updateStoreStatus();
         }
 
         function calculateTotal() {
@@ -645,6 +645,15 @@
             const orderBtn = document.getElementById('order-btn');
             const open = isStoreOpen();
 
+            // Semak jika ada sebarang item dalam cart yang disorok/habis dijual
+            let hasUnavailableItem = false;
+            window.menus.forEach(menu => {
+                const qty = window.cart[menu.id] || 0;
+                if (qty > 0 && (menu.sold || menu.hidden)) {
+                    hasUnavailableItem = true;
+                }
+            });
+
             if (!open) {
                 badge.className = "mb-4 inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold shadow-sm transition-all bg-red-100 text-red-700 border border-red-200";
                 const now = new Date();
@@ -655,6 +664,11 @@
                 }
                 orderBtn.className = "w-full bg-gradient-to-r from-gray-400 to-gray-500 text-white font-extrabold py-3.5 px-6 rounded-2xl flex items-center justify-between opacity-90 cursor-not-allowed";
                 orderBtn.innerHTML = `<span>🔒 Perniagaan Ditutup</span><span class="bg-white/20 px-3 py-1 rounded-xl text-sm">RM 0.00</span>`;
+            } else if (hasUnavailableItem) {
+                badge.className = "mb-4 inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-sm font-bold shadow-sm transition-all bg-emerald-500 text-white font-lcd tracking-widest";
+                statusText.innerText = "OPEN NOW!!";
+                orderBtn.className = "w-full bg-gradient-to-r from-red-400 to-rose-500 text-white font-extrabold py-3.5 px-6 rounded-2xl flex items-center justify-between opacity-90 cursor-not-allowed";
+                orderBtn.innerHTML = `<span>⚠️ Sila Buang Item Habis/Sorok</span><span id="total-price-tag" class="bg-white/20 px-3 py-1 rounded-xl text-sm">RM 0.00</span>`;
             } else {
                 badge.className = "mb-4 inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-sm font-bold shadow-sm transition-all bg-emerald-500 text-white font-lcd tracking-widest";
                 statusText.innerText = "OPEN NOW!!";
@@ -680,6 +694,22 @@
 
         async function sendOrder() {
             if (!isStoreOpen()) { showClosedModal(); return; }
+
+            // Halang hantaran jika ada item tidak tersedia dalam troli
+            let hasUnavailableItem = false;
+            let unavailableName = "";
+            window.menus.forEach(menu => {
+                const qty = window.cart[menu.id] || 0;
+                if (qty > 0 && (menu.sold || menu.hidden)) {
+                    hasUnavailableItem = true;
+                    unavailableName = menu.name;
+                }
+            });
+
+            if (hasUnavailableItem) {
+                showToast(`Sila buang/kurangkan item yang telah habis/disorok: ${unavailableName}`);
+                return;
+            }
 
             let orderText = "";
             let total = 0;
@@ -726,9 +756,7 @@
             } catch (e) { console.error(e); }
 
             const fullMessage = `Assalamualaikum, saya ingin memesan makanan:\n\n${orderText}\n${remarkText}${deliveryText}${paymentText}💰 *Jumlah:* RM ${total.toFixed(2)}`;
-            
-            // PERUBAHAN DI SINI: Menggunakan window.location.href berbanding window.open bagi mengelakkan sekatan Popup Blocker peranti mudah alih
-            window.location.href = `https://wa.me/601160653940?text=${encodeURIComponent(fullMessage)}`;
+            window.open(`https://wa.me/601160653940?text=${encodeURIComponent(fullMessage)}`, '_blank');
         }
 
         async function saveSettings() {
