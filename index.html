@@ -9,7 +9,6 @@
   <link class="rounded-full" rel="icon" type="image/png" href="icon.png">
   <link rel="apple-touch-icon" href="icon.png">
 
-  
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
@@ -315,7 +314,7 @@
                 </div>
 
                 <div class="text-xs bg-brand-100 dark:bg-brand-900/40 text-brand-700 dark:text-brand-300 font-bold px-3 py-1.5 rounded-lg">
-                  {{ visibleMenuItems.length }} Item Hidangan
+                  {{ visibleMenuItems.length }} Hidangan
                 </div>
               </div>
             </div>
@@ -601,11 +600,11 @@
                     <h4 class="font-bold text-xs text-gray-400 dark:text-gray-500 tracking-widest uppercase mb-3">PILIHAN PENERIMAAN</h4>
                     <div class="grid grid-cols-2 gap-3 p-1 bg-gray-100 dark:bg-darkbg-700 rounded-xl">
                       <button @click="checkoutForm.deliveryMode = 'delivery'" class="py-2.5 text-xs font-bold rounded-lg transition-all"
-                        :class="checkoutForm.deliveryMode === 'delivery' ? 'bg-white dark:bg-darkbg-800 text-brand-600 dark:text-brand-400 shadow shadow-gray-200/50' : 'text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200'">
+                        :class="checkoutForm.deliveryMode === 'delivery' ? 'bg-white dark:bg-darkbg-800 text-brand-600 dark:text-brand-400 shadow' : 'text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200'">
                         <i class="fas fa-truck mr-1.5"></i> Penghantaran (COD)
                       </button>
                       <button @click="checkoutForm.deliveryMode = 'pickup'" class="py-2.5 text-xs font-bold rounded-lg transition-all"
-                        :class="checkoutForm.deliveryMode === 'pickup' ? 'bg-white dark:bg-darkbg-800 text-brand-600 dark:text-brand-400 shadow shadow-gray-200/50' : 'text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200'">
+                        :class="checkoutForm.deliveryMode === 'pickup' ? 'bg-white dark:bg-darkbg-800 text-brand-600 dark:text-brand-400 shadow' : 'text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200'">
                         <i class="fas fa-store mr-1.5"></i> Ambil Sendiri (Pick-up)
                       </button>
                     </div>
@@ -1585,7 +1584,7 @@
         const deleteConfirmTarget = ref(null);
         const menuForm = ref({
           name: '',
-          category: '', // NEW FEAT
+          category: '',
           description: '',
           price: 0,
           discount: 0,
@@ -1606,7 +1605,6 @@
         const feedbacks = ref([]);
         const showAdminFeedbackModal = ref(false);
 
-        // --- NEW FEATURES STATES ---
         // FAQs List Data
         const activeFaqIndex = ref(null);
         const faqs = [
@@ -1739,7 +1737,7 @@
             querySnap.forEach((doc) => {
               items.push({ id: doc.id, ...doc.data() });
             });
-            // Sort in client-side memory
+            // Rule 2: Fetch all data with simple collection query, then sort in client-side memory
             items.sort((a, b) => (a.rank || 0) - (b.rank || 0));
             menuItems.value = items;
             loading.value = false;
@@ -2061,51 +2059,15 @@
           return true;
         });
 
-        const submitOrderToWhatsApp = async () => {
-          try {
-            const storeSettingsRef = doc(db, 'artifacts', appId, 'public', 'data', 'settings', 'store');
-            const liveSettingsSnap = await getDoc(storeSettingsRef);
-            
-            let isCurrentlyOpen = true;
-            if (liveSettingsSnap.exists()) {
-              const liveSettings = liveSettingsSnap.data();
-              const utc = new Date().getTime() + (new Date().getTimezoneOffset() * 60000);
-              const klTime = new Date(utc + (3600000 * 8));
-              const currentHour = klTime.getHours();
-              const currentDay = klTime.getDay();
-
-              if (liveSettings.manualOverride === 'CLOSED') {
-                isCurrentlyOpen = false;
-              } else if (liveSettings.manualOverride !== 'OPEN') {
-                const isOffDay = liveSettings.offDay !== "" && currentDay === parseInt(liveSettings.offDay);
-                const isOutsideHours = currentHour < parseInt(liveSettings.openHour) || currentHour >= parseInt(liveSettings.closeHour);
-                if (isOffDay || isOutsideHours) {
-                  isCurrentlyOpen = false;
-                }
-              }
-            }
-
-            if (!isCurrentlyOpen) {
-              triggerNotification('Harap maaf, kedai kami baru sahaja ditutup. Pesanan anda disekat.', 'error');
-              showCheckoutDrawer.value = false;
-              cart.value = [];
-              return;
-            }
-          } catch (err) {
-            console.error("Failed live status security check prior to redirecting. Proceeding under caution.", err);
-          }
-
-          // REKODKAN TRANSAKSI JUALAN KE FIRESTORE (Analitik Log Jualan Ringkas)
-          try {
-            const logsCol = collection(db, 'artifacts', appId, 'public', 'data', 'sales_logs');
-            await addDoc(logsCol, {
-              amount: finalGrandTotal.value,
-              itemsCount: cartTotalItems.value,
-              timestamp: Date.now()
-            });
-          } catch (err) {
-            console.error("Failed to write to sales_logs analytics:", err);
-          }
+        const submitOrderToWhatsApp = () => {
+          // Nota Teknis iOS Compliant: Rekod analisis disimpan secara latar belakang (fire-and-forget) 
+          // tanpa menggunakan 'await' bagi mengelakkan iOS Safari menyekat redirection tingkap.
+          const logsCol = collection(db, 'artifacts', appId, 'public', 'data', 'sales_logs');
+          addDoc(logsCol, {
+            amount: finalGrandTotal.value,
+            itemsCount: cartTotalItems.value,
+            timestamp: Date.now()
+          }).catch(err => console.error("Failed to write to sales_logs analytics:", err));
 
           let messageText = `*🔔 Assalamualaikum dan Hai*\n`;
           messageText += `Boleh sahkan pesanan saya\n\n`;
@@ -2131,7 +2093,6 @@
           
           messageText += `Pembayaran: ${checkoutForm.value.paymentMode}\n\n`;
 
-
           messageText += `*💵 JUMLAH*\n`;
           if (checkoutForm.value.deliveryMode === 'delivery') {
             messageText += `Caj Penghantaran: RM ${parseFloat(storeSettings.value.codCharge || 1.00).toFixed(2)}\n`;
@@ -2148,7 +2109,9 @@
           checkoutForm.value = { name: '', deliveryMode: 'delivery', address: '', section: '', paymentMode: '' };
           triggerNotification('Mengarahkan anda ke WhatsApp...');
 
-          window.open(whatsappUrl, '_blank');
+          // Menggunakan window.location.href berbanding window.open bagi memastikan pembuka native app 
+          // dipanggil secara langsung pada iOS/Android tanpa gangguan sekat popup Safari/Chrome.
+          window.location.href = whatsappUrl;
         };
 
         const contactWhatsAppDirect = () => {
@@ -2156,7 +2119,7 @@
           const messageText = `Assalamualaikum dan Hai, saya bercadang untuk membuat tempahan`;
           const encodedText = encodeURIComponent(messageText);
           const whatsappUrl = `https://wa.me/${merchantNumber}?text=${encodedText}`;
-          window.open(whatsappUrl, '_blank');
+          window.location.href = whatsappUrl;
         };
 
         // --- ADMINISTRATIVE SECURITY & SETTINGS MANAGEMENT ---
@@ -2610,7 +2573,7 @@
           formatHour,
           formatDay,
           
-          // New Features exports
+          // Additional exports for custom requested features
           activeFaqIndex,
           faqs,
           toggleFaq,
