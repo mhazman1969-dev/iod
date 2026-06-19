@@ -361,6 +361,18 @@
                       <span>Diskaun {{ item.discount }}%</span>
                     </div>
 
+                    <!-- Lencana Automatik (Best Seller & Syor Chef) -->
+                    <div class="absolute top-3 right-3 flex flex-col gap-1.5 items-end">
+                      <div v-if="item.isBestSeller" class="bg-red-600 text-white text-[9px] md:text-[10px] font-extrabold px-2.5 py-1 rounded-lg uppercase tracking-wider shadow flex items-center gap-1">
+                        <i class="fas fa-crown text-[10px] text-amber-300"></i>
+                        <span>Paling Laris</span>
+                      </div>
+                      <div v-if="item.isRecommended" class="bg-blue-600 text-white text-[9px] md:text-[10px] font-extrabold px-2.5 py-1 rounded-lg uppercase tracking-wider shadow flex items-center gap-1">
+                        <i class="fas fa-thumbs-up text-[10px]"></i>
+                        <span>Disyorkan</span>
+                      </div>
+                    </div>
+
                     <!-- Out of Stock Indicator badge -->
                     <div v-if="item.isSoldOut" class="absolute inset-0 bg-black/65 backdrop-blur-[2px] flex flex-col items-center justify-center text-white p-3 text-center">
                       <div class="w-10 h-10 rounded-full bg-red-600/20 border-2 border-red-500 flex items-center justify-center text-red-500 mb-1.5 animate-pulse">
@@ -457,6 +469,35 @@
                 </div>
               </transition-group>
             </div>
+
+            <!-- SEKSYEN FAQ INTERAKTIF (Soalan Lazim) -->
+            <div class="mt-16 bg-white dark:bg-darkbg-800 rounded-3xl border border-gray-100 dark:border-gray-800 p-6 md:p-10 shadow-sm theme-transition">
+              <div class="text-center mb-8">
+                <span class="text-xs font-extrabold tracking-widest text-brand-600 dark:text-brand-400 uppercase">Ada Soalan?</span>
+                <h3 class="text-2xl md:text-3xl font-black text-gray-900 dark:text-white mt-1">Soalan Lazim (FAQ)</h3>
+                <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Semua jawapan ringkas tentang pesanan, katering, dan penghantaran kami.</p>
+              </div>
+
+              <div class="space-y-4 max-w-3xl mx-auto text-left">
+                <div v-for="(faq, idx) in faqs" :key="idx" class="border-b border-gray-100 dark:border-gray-700/50 pb-4">
+                  <button @click="toggleFaq(idx)" class="w-full flex items-center justify-between text-sm md:text-base font-bold text-gray-800 dark:text-gray-100 hover:text-brand-600 dark:hover:text-brand-400 transition focus:outline-none py-2 text-left gap-4">
+                    <span>{{ faq.question }}</span>
+                    <i class="fas transition-transform duration-300 text-xs text-gray-400" :class="activeFaqIndex === idx ? 'fa-chevron-up rotate-180' : 'fa-chevron-down'"></i>
+                  </button>
+                  <transition enter-active-class="transition duration-200 ease-out"
+                              enter-from-class="opacity-0 translate-y-[-5px]"
+                              enter-to-class="opacity-100 translate-y-0"
+                              leave-active-class="transition duration-150 ease-in"
+                              leave-from-class="opacity-100 translate-y-0"
+                              leave-to-class="opacity-0 translate-y-[-5px]">
+                    <p v-if="activeFaqIndex === idx" class="text-xs md:text-sm text-gray-500 dark:text-gray-400 mt-2 leading-relaxed">
+                      {{ faq.answer }}
+                    </p>
+                  </transition>
+                </div>
+              </div>
+            </div>
+
           </div>
 
           <!-- FLOATING WHATSAPP BUTTON (Dinamik mengikut status bakul) -->
@@ -560,11 +601,11 @@
                     <h4 class="font-bold text-xs text-gray-400 dark:text-gray-500 tracking-widest uppercase mb-3">PILIHAN PENERIMAAN</h4>
                     <div class="grid grid-cols-2 gap-3 p-1 bg-gray-100 dark:bg-darkbg-700 rounded-xl">
                       <button @click="checkoutForm.deliveryMode = 'delivery'" class="py-2.5 text-xs font-bold rounded-lg transition-all"
-                        :class="checkoutForm.deliveryMode === 'delivery' ? 'bg-white dark:bg-darkbg-800 text-brand-600 dark:text-brand-400 shadow' : 'text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200'">
+                        :class="checkoutForm.deliveryMode === 'delivery' ? 'bg-white dark:bg-darkbg-800 text-brand-600 dark:text-brand-400 shadow shadow-gray-200/50' : 'text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200'">
                         <i class="fas fa-truck mr-1.5"></i> Penghantaran (COD)
                       </button>
                       <button @click="checkoutForm.deliveryMode = 'pickup'" class="py-2.5 text-xs font-bold rounded-lg transition-all"
-                        :class="checkoutForm.deliveryMode === 'pickup' ? 'bg-white dark:bg-darkbg-800 text-brand-600 dark:text-brand-400 shadow' : 'text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200'">
+                        :class="checkoutForm.deliveryMode === 'pickup' ? 'bg-white dark:bg-darkbg-800 text-brand-600 dark:text-brand-400 shadow shadow-gray-200/50' : 'text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200'">
                         <i class="fas fa-store mr-1.5"></i> Ambil Sendiri (Pick-up)
                       </button>
                     </div>
@@ -734,15 +775,19 @@
               </div>
             </div>
 
-            <!-- Tabs Section: [Store Settings / Menu Management] -->
-            <div class="flex border-b border-gray-200 dark:border-gray-800 gap-6">
-              <button @click="adminSubTab = 'settings'" class="pb-3 text-sm font-extrabold transition-all relative"
+            <!-- Tabs Section: [Store Settings / Menu Management / Sales Reports] -->
+            <div class="flex border-b border-gray-200 dark:border-gray-800 gap-6 overflow-x-auto scrollbar-none">
+              <button @click="adminSubTab = 'settings'" class="pb-3 text-sm font-extrabold transition-all relative shrink-0"
                 :class="adminSubTab === 'settings' ? 'text-brand-600 dark:text-brand-400 border-b-2 border-brand-500' : 'text-gray-400 hover:text-gray-600 dark:hover:text-gray-200'">
                 <i class="fas fa-sliders-h mr-2"></i> Konfigurasi Kedai
               </button>
-              <button @click="adminSubTab = 'menu'" class="pb-3 text-sm font-extrabold transition-all relative"
+              <button @click="adminSubTab = 'menu'" class="pb-3 text-sm font-extrabold transition-all relative shrink-0"
                 :class="adminSubTab === 'menu' ? 'text-brand-600 dark:text-brand-400 border-b-2 border-brand-500' : 'text-gray-400 hover:text-gray-600 dark:hover:text-gray-200'">
                 <i class="fas fa-utensils mr-2"></i> Pengurusan Menu & Stok
+              </button>
+              <button @click="adminSubTab = 'reports'" class="pb-3 text-sm font-extrabold transition-all relative shrink-0"
+                :class="adminSubTab === 'reports' ? 'text-brand-600 dark:text-brand-400 border-b-2 border-brand-500' : 'text-gray-400 hover:text-gray-600 dark:hover:text-gray-200'">
+                <i class="fas fa-chart-line mr-2"></i> Laporan Jualan
               </button>
             </div>
 
@@ -935,6 +980,13 @@
                               <span v-if="item.allowRemarks" class="inline-flex items-center gap-1 px-1.5 py-0.5 text-[9px] font-bold text-brand-700 dark:text-brand-300 bg-brand-100 dark:bg-brand-900/40 rounded">
                                 <i class="fas fa-comment-dots"></i> Catatan Dibenarkan
                               </span>
+                              <!-- Lencana Penunjuk Admin -->
+                              <span v-if="item.isBestSeller" class="inline-flex items-center gap-1 px-1.5 py-0.5 text-[9px] font-bold text-red-700 dark:text-red-300 bg-red-100 dark:bg-red-900/40 rounded">
+                                <i class="fas fa-crown"></i> Laris
+                              </span>
+                              <span v-if="item.isRecommended" class="inline-flex items-center gap-1 px-1.5 py-0.5 text-[9px] font-bold text-emerald-700 dark:text-emerald-300 bg-emerald-100 dark:bg-emerald-900/40 rounded">
+                                <i class="fas fa-thumbs-up"></i> Syor
+                              </span>
                             </div>
                           </div>
                         </td>
@@ -991,6 +1043,83 @@
                               <i class="fas fa-trash-alt"></i>
                             </button>
                           </div>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+
+            <!-- TAB CONTENT: SALES REPORTS -->
+            <div v-if="adminSubTab === 'reports'" class="space-y-6">
+              <!-- Stats Grid -->
+              <div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
+                <!-- Today's Revenue -->
+                <div class="bg-white dark:bg-darkbg-800 p-6 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm flex items-center gap-4">
+                  <div class="w-12 h-12 rounded-xl bg-emerald-500/10 text-emerald-500 flex items-center justify-center text-xl shrink-0">
+                    <i class="fas fa-wallet"></i>
+                  </div>
+                  <div>
+                    <span class="block text-xs font-bold text-gray-400 uppercase">Jualan Hari Ini</span>
+                    <h3 class="text-xl font-black text-gray-900 dark:text-white mt-0.5">RM {{ todaySalesStats.revenue.toFixed(2) }}</h3>
+                  </div>
+                </div>
+                <!-- Today's Orders -->
+                <div class="bg-white dark:bg-darkbg-800 p-6 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm flex items-center gap-4">
+                  <div class="w-12 h-12 rounded-xl bg-blue-500/10 text-blue-500 flex items-center justify-center text-xl shrink-0">
+                    <i class="fas fa-shopping-cart"></i>
+                  </div>
+                  <div>
+                    <span class="block text-xs font-bold text-gray-400 uppercase">Tempahan Hari Ini</span>
+                    <h3 class="text-xl font-black text-gray-900 dark:text-white mt-0.5">{{ todaySalesStats.orders }} Tempahan</h3>
+                  </div>
+                </div>
+                <!-- Avg Ticket Size -->
+                <div class="bg-white dark:bg-darkbg-800 p-6 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm flex items-center gap-4">
+                  <div class="w-12 h-12 rounded-xl bg-amber-500/10 text-brand-600 dark:text-brand-400 flex items-center justify-center text-xl shrink-0">
+                    <i class="fas fa-calculator"></i>
+                  </div>
+                  <div>
+                    <span class="block text-xs font-bold text-gray-400 uppercase">Purata Tempahan</span>
+                    <h3 class="text-xl font-black text-gray-900 dark:text-white mt-0.5">RM {{ todaySalesStats.avg.toFixed(2) }}</h3>
+                  </div>
+                </div>
+              </div>
+
+              <!-- History logs table -->
+              <div class="bg-white dark:bg-darkbg-800 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm overflow-hidden">
+                <div class="px-6 py-4 border-b border-gray-100 dark:border-gray-800 flex justify-between items-center">
+                  <h4 class="font-extrabold text-sm text-gray-900 dark:text-gray-100 capitalize">Log Aktiviti Tempahan (Klik WhatsApp)</h4>
+                  <button @click="clearSalesLogs" class="text-xs text-red-500 hover:text-red-700 font-bold flex items-center gap-1">
+                    <i class="fas fa-trash-alt"></i> Padam Semua Log
+                  </button>
+                </div>
+                
+                <div class="overflow-x-auto">
+                  <table class="w-full text-left border-collapse">
+                    <thead>
+                      <tr class="bg-gray-50 dark:bg-darkbg-700/50 text-[10px] font-bold text-gray-400 uppercase border-b border-gray-100 dark:border-gray-800">
+                        <th class="py-4 px-6">Tarikh & Masa</th>
+                        <th class="py-4 px-4 text-center">Jumlah Item</th>
+                        <th class="py-4 px-6 text-right">Jumlah Bayaran</th>
+                      </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-100 dark:divide-gray-800 text-sm font-semibold text-gray-700 dark:text-gray-200">
+                      <tr v-for="log in salesLogs" :key="log.id" class="hover:bg-gray-50/50 dark:hover:bg-darkbg-700/20 transition">
+                        <td class="py-4 px-6 text-xs text-gray-500 dark:text-gray-400">
+                          {{ formatTimestamp(log.timestamp) }}
+                        </td>
+                        <td class="py-4 px-4 text-center text-xs">
+                          {{ log.itemsCount }} item
+                        </td>
+                        <td class="py-4 px-6 text-right text-sm font-bold text-brand-600 dark:text-brand-400">
+                          RM {{ parseFloat(log.amount || 0).toFixed(2) }}
+                        </td>
+                      </tr>
+                      <tr v-if="salesLogs.length === 0">
+                        <td colspan="3" class="py-12 text-center text-xs text-gray-400">
+                          Tiada rekod log jualan terkumpul lagi.
                         </td>
                       </tr>
                     </tbody>
@@ -1258,7 +1387,7 @@
             </div>
 
             <!-- Status Toggles during addition -->
-            <div class="grid grid-cols-3 gap-2 pt-2">
+            <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 pt-2">
               <label class="flex items-center gap-2 cursor-pointer">
                 <input type="checkbox" v-model="menuForm.isSoldOut" class="w-4 h-4 rounded text-brand-500 focus:ring-brand-500 border-gray-300 dark:border-gray-600">
                 <span class="text-[11px] font-bold text-gray-600 dark:text-brand-300">Habis Stok?</span>
@@ -1267,10 +1396,17 @@
                 <input type="checkbox" v-model="menuForm.isHidden" class="w-4 h-4 rounded text-brand-500 focus:ring-brand-500 border-gray-300 dark:border-gray-600">
                 <span class="text-[11px] font-bold text-gray-600 dark:text-brand-300">Sembunyikan?</span>
               </label>
-              <!-- allowRemarks switch in Admin Form -->
               <label class="flex items-center gap-2 cursor-pointer">
                 <input type="checkbox" v-model="menuForm.allowRemarks" class="w-4 h-4 rounded text-brand-500 focus:ring-brand-500 border-gray-300 dark:border-gray-600">
                 <span class="text-[11px] font-bold text-gray-600 dark:text-brand-300">Catatan Khas?</span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" v-model="menuForm.isBestSeller" class="w-4 h-4 rounded text-brand-500 focus:ring-brand-500 border-gray-300 dark:border-gray-600">
+                <span class="text-[11px] font-bold text-gray-600 dark:text-brand-300">Paling Laris?</span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" v-model="menuForm.isRecommended" class="w-4 h-4 rounded text-brand-500 focus:ring-brand-500 border-gray-300 dark:border-gray-600">
+                <span class="text-[11px] font-bold text-gray-600 dark:text-brand-300">Disyorkan?</span>
               </label>
             </div>
 
@@ -1457,6 +1593,8 @@
           isSoldOut: false,
           isHidden: false,
           allowRemarks: false,
+          isBestSeller: false,
+          isRecommended: false,
           rank: 0,
           variants: []
         });
@@ -1467,6 +1605,41 @@
         const feedbackSaving = ref(false);
         const feedbacks = ref([]);
         const showAdminFeedbackModal = ref(false);
+
+        // --- NEW FEATURES STATES ---
+        // FAQs List Data
+        const activeFaqIndex = ref(null);
+        const faqs = [
+          { question: 'Adakah hidangan Home Kitchen disahkan Halal?', answer: 'Ya, 100% menggunakan bahan-bahan halal daripada pembekal Muslim tempatan serta dimasak dengan bersih di dapur rumah kami.' },
+          { question: 'Berapakah radius COD dan kawasannya?', answer: 'Kami menyediakan penghantaran COD sekitar Bandar Lagenda Teluk Intan (Fasa 1, 2, dan 3) dengan caj penghantaran serendah RM 1.00.' },
+          { question: 'Bolehkah saya membuat tempahan awal (Pre-Order) untuk katering?', answer: 'Sangat dialukan! Sila hubungi kami terus melalui WhatsApp sekurang-kurangnya 2-3 hari lebih awal untuk perbincangan lanjut tentang menu katering anda.' },
+          { question: 'Bagaimanakah cara membuat pembayaran?', answer: 'Kami menerima pemindahan dalam talian / Kod QR DuitNow secara pantas dan juga pembayaran secara tunai (Cash on Delivery) semasa pesanan sampai.' }
+        ];
+        const toggleFaq = (index) => {
+          activeFaqIndex.value = activeFaqIndex.value === index ? null : index;
+        };
+
+        // Real-time Sales Logs State
+        const salesLogs = ref([]);
+
+        // Computed Stats for Daily Sales Reports
+        const todaySalesStats = computed(() => {
+          const now = new Date();
+          const utc = now.getTime() + (now.getTimezoneOffset() * 60000);
+          const klTime = new Date(utc + (3600000 * 8));
+          
+          // Mulakan kiraan dari awal hari ini (KL Time)
+          const startOfToday = new Date(klTime.getFullYear(), klTime.getMonth(), klTime.getDate()).getTime();
+          
+          const todayLogs = salesLogs.value.filter(log => log.timestamp >= startOfToday);
+          const totalRevenue = todayLogs.reduce((sum, log) => sum + (parseFloat(log.amount) || 0), 0);
+          const totalOrders = todayLogs.length;
+          return {
+            revenue: totalRevenue,
+            orders: totalOrders,
+            avg: totalOrders ? (totalRevenue / totalOrders) : 0
+          };
+        });
 
         // --- HERO SLIDER NAVIGATION ---
         const startHeroTimer = () => {
@@ -1566,7 +1739,7 @@
             querySnap.forEach((doc) => {
               items.push({ id: doc.id, ...doc.data() });
             });
-            // Rule 2: Fetch all data with simple collection query, then sort in client-side memory
+            // Sort in client-side memory
             items.sort((a, b) => (a.rank || 0) - (b.rank || 0));
             menuItems.value = items;
             loading.value = false;
@@ -1577,6 +1750,9 @@
 
           // Live Feedbacks real-time snapshot listener (Admin Only)
           let unsubscribeFeedback = () => {};
+          // Live Sales Logs snapshot listener (Admin Only)
+          let unsubscribeSales = () => {};
+
           if (user && !user.isAnonymous) {
             const feedbackColRef = collection(db, 'artifacts', appId, 'public', 'data', 'feedbacks');
             unsubscribeFeedback = onSnapshot(feedbackColRef, (querySnap) => {
@@ -1590,8 +1766,23 @@
             }, (error) => {
               console.error("Feedback snapshot listener error:", error);
             });
+
+            // Listening real-time to sales_logs
+            const salesColRef = collection(db, 'artifacts', appId, 'public', 'data', 'sales_logs');
+            unsubscribeSales = onSnapshot(salesColRef, (querySnap) => {
+              const logs = [];
+              querySnap.forEach((docSnap) => {
+                logs.push({ id: docSnap.id, ...docSnap.data() });
+              });
+              // Urutkan paling baru dahulu
+              logs.sort((a, b) => b.timestamp - a.timestamp);
+              salesLogs.value = logs;
+            }, (error) => {
+              console.error("Sales Logs snapshot listener error:", error);
+            });
           } else {
             feedbacks.value = [];
+            salesLogs.value = [];
           }
 
           // Cleanup listeners when user leaves or logs out
@@ -1599,6 +1790,7 @@
             unsubscribeSettings();
             unsubscribeMenu();
             unsubscribeFeedback();
+            unsubscribeSales();
             stopHeroTimer();
           };
         }, { immediate: true });
@@ -1903,6 +2095,18 @@
             console.error("Failed live status security check prior to redirecting. Proceeding under caution.", err);
           }
 
+          // REKODKAN TRANSAKSI JUALAN KE FIRESTORE (Analitik Log Jualan Ringkas)
+          try {
+            const logsCol = collection(db, 'artifacts', appId, 'public', 'data', 'sales_logs');
+            await addDoc(logsCol, {
+              amount: finalGrandTotal.value,
+              itemsCount: cartTotalItems.value,
+              timestamp: Date.now()
+            });
+          } catch (err) {
+            console.error("Failed to write to sales_logs analytics:", err);
+          }
+
           let messageText = `*🔔 Assalamualaikum dan Hai*\n`;
           messageText += `Boleh sahkan pesanan saya\n\n`;
           messageText += `*🍔 Pesanan*\n`;
@@ -2038,6 +2242,8 @@
               isSoldOut: item.isSoldOut || false,
               isHidden: item.isHidden || false,
               allowRemarks: item.allowRemarks || false,
+              isBestSeller: item.isBestSeller || false,
+              isRecommended: item.isRecommended || false,
               rank: item.rank || 0,
               variants: item.variants ? JSON.parse(JSON.stringify(item.variants)) : []
             };
@@ -2053,6 +2259,8 @@
               isSoldOut: false,
               isHidden: false,
               allowRemarks: false,
+              isBestSeller: false,
+              isRecommended: false,
               rank: menuItems.value.length ? Math.max(...menuItems.value.map(i => i.rank || 0)) + 1 : 1,
               variants: []
             };
@@ -2117,6 +2325,8 @@
               isSoldOut: menuForm.value.isSoldOut,
               isHidden: menuForm.value.isHidden,
               allowRemarks: menuForm.value.allowRemarks || false,
+              isBestSeller: menuForm.value.isBestSeller || false,
+              isRecommended: menuForm.value.isRecommended || false,
               rank: parseInt(menuForm.value.rank) || 0,
               variants: menuForm.value.variants ? JSON.parse(JSON.stringify(menuForm.value.variants)) : []
             };
@@ -2295,6 +2505,21 @@
           return days[dayIndex] || '';
         };
 
+        // --- SALES LOGS ACTIONS ---
+        const clearSalesLogs = async () => {
+          if (!confirm('Adakah anda pasti untuk memadam semua log jualan?')) return;
+          try {
+            for (const log of salesLogs.value) {
+              const logDocRef = doc(db, 'artifacts', appId, 'public', 'data', 'sales_logs', log.id);
+              await deleteDoc(logDocRef);
+            }
+            triggerNotification('Semua log jualan telah berjaya dipadam.');
+          } catch (err) {
+            console.error("Error clearing sales logs:", err);
+            triggerNotification('Gagal memadam log jualan.', 'error');
+          }
+        };
+
         return {
           loading,
           isDarkMode,
@@ -2383,7 +2608,15 @@
           deleteFeedback,
           formatTimestamp,
           formatHour,
-          formatDay
+          formatDay,
+          
+          // New Features exports
+          activeFaqIndex,
+          faqs,
+          toggleFaq,
+          salesLogs,
+          todaySalesStats,
+          clearSalesLogs
         };
       }
     }).mount('#app');
